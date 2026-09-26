@@ -1,0 +1,29 @@
+User
+A user can be created.
+A user can view their profile.
+A user can update their profile.
+
+Product / Inventory
+A product can be added to the inventory.
+A product's information can be updated.
+A product can be removed/deactivated.
+The system can show the current stock quantity of a product.
+Stock can be added to a product.
+Stock can be reduced when an order is placed.
+The system must reject an order if there isn't enough stock.
+
+Order
+A user can create an order containing one or more products.
+The system checks inventory availability when creating an order.
+If sufficient stock exists, the required stock is deducted and the order is created.
+If sufficient stock doesn't exist, the order is rejected.
+A user can view their orders.
+An order has a lifecycle/status, e.g.:
+
+notification
+sent notification on succesful orders.
+
+
+
+future 
+order reservation thingy

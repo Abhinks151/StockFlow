@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+service OrderService {
+  rpc GetOrdersByUser(GetOrdersByUserRequest) returns (Orders);
+}
+
+message GetOrdersByUserRequest {
+  string userId = 1;
+}
+
+message Orders {
+  repeated Order orders = 1;
+}
+
+message Order {
+  string id = 1;
+  string userId = 2;
+  double total = 3;
+  string status = 4;
+}
