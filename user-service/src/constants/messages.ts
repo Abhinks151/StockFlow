@@ -1,0 +1,16 @@
+export const MESSAGES = {
+  USER_CREATED: "User created successfully",
+  LOGIN_SUCCESS: "Login successful",
+  PROFILE_FETCHED: "Profile fetched successfully",
+  PROFILE_UPDATED: "Profile updated successfully",
+  INVALID_CREDENTIALS: "Invalid email or password",
+  EMAIL_EXISTS: "Email is already registered",
+  INVALID_EMAIL_FORMAT: "Invalid email format",
+  USER_NOT_FOUND: "User not found",
+  MISSING_FIELDS: "Required fields are missing",
+  UNAUTHORIZED: "Unauthorized access: Token missing or invalid",
+  SERVER_ERROR: "Internal server error",
+  PASSWORD_TOO_SHORT: "Password must be at least 6 characters long",
+  NAME_EMPTY: "Name cannot be empty",
+  PROFILE_UPDATE_FAILED: "Failed to update profile",
+} as const;
