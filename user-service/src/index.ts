@@ -1,40 +1,33 @@
 import express from "express";
-import { connectDB } from "./config/db";
 import dotenv from "dotenv";
-import { User } from "./models/user.models";
+import { connectDB } from "./config/db";
+import userRoutes from "./routes/user.routes";
+import { HTTP_STATUS } from "./constants/statusCodes";
+
 dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
+// Connect to MongoDB
 connectDB();
 
+// Middleware
 app.use(express.json());
 
+// Health Check
 app.get("/health", (_req, res) => {
-  res.status(200).send("Ok");
+  res.status(HTTP_STATUS.OK).send("Ok");
 });
 
-app.post("/user/create", async (req, res) => {
-  const { name, email, password } = req.body;
-  const user = await User.create({
-    name,
-    email,
-    password,
-  });
+// Routes
+app.use("/api/users", userRoutes);
+// Also support root /user or /users for convenience
+app.use("/user", userRoutes);
 
-  return res.status(201).json({ message: "User created successfully", user });
-});
-
+// Start Server
 app.listen(PORT, () => {
   console.log(`User Service running at http://localhost:${PORT}`);
 });
 
-
-// curl -X POST http://localhost:3000/user/create \
-//   -H "Content-Type: application/json" \
-//   -d '{
-//     "name": "John Doe",
-//     "email": "john@example.com",
-//     "password": "secret123"
-//   }'
+export default app;
