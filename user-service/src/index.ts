@@ -22,8 +22,6 @@ app.get("/health", (_req, res) => {
 
 // Routes
 app.use("/api/users", userRoutes);
-// Also support root /user or /users for convenience
-app.use("/user", userRoutes);
 
 // Start Server
 app.listen(PORT, () => {
