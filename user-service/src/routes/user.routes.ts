@@ -12,6 +12,6 @@ router.post("/login", userController.login);
 // Protected routes (Token-based auth)
 router.get("/profile", authenticateToken, userController.getProfile);
 router.patch("/profile", authenticateToken, userController.updateProfile);
-router.put("/profile", authenticateToken, userController.updateProfile);
+// router.put("/profile", authenticateToken, userController.updateProfile);
 
 export default router;
