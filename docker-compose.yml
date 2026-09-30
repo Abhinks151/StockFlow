@@ -34,6 +34,7 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
+      - JWT_SECRET=stockflow_user_service_jwt_secret_key_2026
     depends_on:
       - user-service
     networks:
