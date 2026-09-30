@@ -44,9 +44,17 @@ export class UserController {
 
   getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      const userId = req.user?.userId;
+      console.log("BODY:", req.body);
+      console.log("QUERY:", req.query);
+      console.log("HEADERS:", {
+        userId: req.headers["x-user-id"],
+        email: req.headers["x-user-email"],
+      });
+      const userId = req.headers["x-user-id"] as string;
       if (!userId) {
-        res.status(HTTP_STATUS.UNAUTHORIZED).json({ success: false, message: MESSAGES.UNAUTHORIZED });
+        res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json({ success: false, message: MESSAGES.UNAUTHORIZED });
         return;
       }
 
@@ -65,13 +73,18 @@ export class UserController {
 
   updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      const userId = req.user?.userId;
+      const userId = req.headers["x-user-id"] as string;
       if (!userId) {
-        res.status(HTTP_STATUS.UNAUTHORIZED).json({ success: false, message: MESSAGES.UNAUTHORIZED });
+        res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json({ success: false, message: MESSAGES.UNAUTHORIZED });
         return;
       }
 
-      const updatedUser = await this.userService.updateUserProfile(userId, req.body);
+      const updatedUser = await this.userService.updateUserProfile(
+        userId,
+        req.body,
+      );
       res.status(HTTP_STATUS.OK).json({
         success: true,
         message: MESSAGES.PROFILE_UPDATED,

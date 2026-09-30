@@ -4,12 +4,17 @@ import {
   createProxyMiddleware,
   fixRequestBody,
 } from "http-proxy-middleware";
+import { authenticateToken, AuthRequest } from "./middleware/auth.middleware";
 
 dotenv.config();
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
+
+
+
+app.use(authenticateToken);
 
 app.use(
   "/api/users",
@@ -18,7 +23,18 @@ app.use(
     changeOrigin: true,
 
     on: {
-      proxyReq: fixRequestBody,
+      proxyReq: (proxyReq, req) => {
+        // Rebuild the body because express.json() parsed it // test it 
+        fixRequestBody(proxyReq, req);
+
+        // Forward authenticated user information
+        const authReq = req as AuthRequest;
+
+        if (authReq.user) {
+          proxyReq.setHeader("X-User-Id", authReq.user.userId);
+          proxyReq.setHeader("X-User-Email", authReq.user.email);
+        }
+      },
     },
   })
 );

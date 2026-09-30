@@ -1,15 +1,30 @@
-import { Response, NextFunction } from "express";
+import { Response, NextFunction, Request } from "express";
 import jwt from "jsonwebtoken";
-import { AuthRequest, JwtPayload } from "../interfaces/user.interface";
-import { HTTP_STATUS } from "../constants/statusCodes";
-import { MESSAGES } from "../constants/messages";
+
+const HTTP_STATUS = {
+  UNAUTHORIZED: 401,
+} as const;
+
+const MESSAGES = {
+  UNAUTHORIZED: "Unauthorized access: Token missing or invalid",
+} as const;
+
+interface JwtPayload {
+  userId: string;
+  email: string;
+}
+
+export interface AuthRequest extends Request {
+  user?: JwtPayload;
+}
 
 export const authenticateToken = (
   req: AuthRequest,
   res: Response,
   next: NextFunction,
 ): void => {
-  if (req.path === "/register" || req.path === "/login") {
+  console.log(req.path);
+  if (req.path === "/api/users/register" || req.path === "/api/users/login") {
     next();
     return;
   }
@@ -28,8 +43,11 @@ export const authenticateToken = (
     return;
   }
 
-  const secret = process.env.JWT_SECRET || "default_secret";
+  const secret = process.env.JWT_SECRET;
 
+  if (!secret) {
+    throw new Error("JWT_SECRET is not configured");
+  }
   try {
     const decoded = jwt.verify(token, secret) as JwtPayload;
     req.user = decoded;
