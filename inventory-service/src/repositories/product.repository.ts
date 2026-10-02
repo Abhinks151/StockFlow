@@ -9,6 +9,7 @@ export class ProductRepository {
         description: data.description,
         stock: data.stock,
         category: data.category,
+        amount: data.amount,
       },
     });
   }

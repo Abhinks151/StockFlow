@@ -10,9 +10,9 @@ export class ProductService {
   }
 
   async createProduct(dto: ICreateProductDTO) {
-    const { name, category, stock, description } = dto;
+    const { name, category, stock, amount, description } = dto;
 
-    if (!name || !category || stock === undefined || stock === null) {
+    if (!name || !category || stock === undefined || stock === null || amount === undefined || amount === null) {
       throw { statusCode: HTTP_STATUS.BAD_REQUEST, message: MESSAGES.MISSING_REQUIRED_FIELDS };
     }
 
@@ -28,10 +28,15 @@ export class ProductService {
       throw { statusCode: HTTP_STATUS.BAD_REQUEST, message: MESSAGES.INVALID_STOCK_VALUE };
     }
 
+    if (typeof amount !== "number" || amount < 0 || isNaN(amount)) {
+      throw { statusCode: HTTP_STATUS.BAD_REQUEST, message: MESSAGES.INVALID_AMOUNT_VALUE };
+    }
+
     return await this.productRepository.create({
       name: name.trim(),
       category: category.trim(),
       stock,
+      amount,
       description: description ? description.trim() : undefined,
     });
   }
@@ -75,6 +80,13 @@ export class ProductService {
         throw { statusCode: HTTP_STATUS.BAD_REQUEST, message: MESSAGES.INVALID_STOCK_VALUE };
       }
       updateData.stock = dto.stock;
+    }
+
+    if (dto.amount !== undefined) {
+      if (typeof dto.amount !== "number" || dto.amount < 0 || isNaN(dto.amount)) {
+        throw { statusCode: HTTP_STATUS.BAD_REQUEST, message: MESSAGES.INVALID_AMOUNT_VALUE };
+      }
+      updateData.amount = dto.amount;
     }
 
     if (dto.description !== undefined) {

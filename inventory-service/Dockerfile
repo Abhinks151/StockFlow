@@ -29,5 +29,5 @@ EXPOSE 3002
 ENV PORT=3002
 ENV NODE_ENV=production
 
-# Start application
-CMD ["pnpm", "start"]
+# Run migrations then start the app
+CMD ["sh", "-c", "npx prisma migrate deploy && pnpm start"]
