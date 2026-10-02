@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+  iimport mongoose, { Schema, Document } from "mongoose";
 import { IUser } from "../interfaces/user.interface";
 
 export interface IUserDocument extends Omit<IUser, "_id">, Document {}
