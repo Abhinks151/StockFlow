@@ -9,6 +9,20 @@ services:
     networks:
       - stockflow-network
 
+  postgres:
+    image: postgres:17-alpine
+    container_name: stockflow-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=stockflow_inventory
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - stockflow-network
+
   user-service:
     build:
       context: ./user-service
@@ -24,7 +38,22 @@ services:
       - mongo
     networks:
       - stockflow-network
-  
+
+  inventory-service:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    container_name: stockflow-inventory-service
+    ports:
+      - "3002:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/stockflow_inventory?schema=public
+    depends_on:
+      - postgres
+    networks:
+      - stockflow-network
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -37,11 +66,13 @@ services:
       - JWT_SECRET=stockflow_user_service_jwt_secret_key_2026
     depends_on:
       - user-service
+      - inventory-service
     networks:
       - stockflow-network
 
 volumes:
   mongo_data:
+  postgres_data:
 
 networks:
   stockflow-network:

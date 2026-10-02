@@ -39,6 +39,19 @@ app.use(
   })
 );
 
+app.use(
+  "/api/products",
+  createProxyMiddleware({
+    target: "http://inventory-service:3000/api/products",
+    changeOrigin: true,
+    on: {
+      proxyReq: (proxyReq, req) => {
+        fixRequestBody(proxyReq, req);
+      }
+    }
+  })
+)
+
 app.get("/health", (_req, res) => {
   res.status(200).send("Ok");
 });
