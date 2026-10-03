@@ -5,6 +5,8 @@ import {
   getProductFromInventory,
   deductStockFromInventory,
 } from "../clients/inventory.client";
+import { getUserFromUserService } from "../clients/user.client";
+import { publishOrderCreated } from "../events/publisher";
 
 export class OrderService {
   private orderRepository: OrderRepository;
@@ -37,7 +39,18 @@ export class OrderService {
       };
     }
 
-    // 1. Fetch product details from Inventory Service via gRPC
+    // 1. Fetch user details from User Service via gRPC
+    let user: any;
+    try {
+      user = await getUserFromUserService(userId);
+    } catch (error: any) {
+      throw {
+        statusCode: HTTP_STATUS.NOT_FOUND,
+        message: "User not found or User Service unreachable via gRPC",
+      };
+    }
+
+    // 2. Fetch product details from Inventory Service via gRPC
     let product: any;
     try {
       product = await getProductFromInventory(productId);
@@ -48,7 +61,7 @@ export class OrderService {
       };
     }
 
-    // 2. Check stock availability
+    // 3. Check stock availability
     if (product.stock < quantity) {
       throw {
         statusCode: HTTP_STATUS.BAD_REQUEST,
@@ -56,7 +69,7 @@ export class OrderService {
       };
     }
 
-    // 3. Deduct stock via gRPC
+    // 4. Deduct stock via gRPC
     const deductResult = await deductStockFromInventory(productId, quantity);
     if (!deductResult.success) {
       throw {
@@ -65,16 +78,30 @@ export class OrderService {
       };
     }
 
-    // 4. Calculate total amount (quantity * unit price)
+    // 5. Calculate total amount (quantity * unit price)
     const totalAmount = product.amount * quantity;
 
-    // 5. Create and persist Order
+    // 6. Create and persist Order
     const order = await this.orderRepository.create({
       userId,
       productId,
       quantity,
       totalAmount,
       status: OrderStatus.PENDING,
+    });
+
+    // 7. Publish OrderCreated event asynchronously via RabbitMQ
+    await publishOrderCreated({
+      orderId: (order as any)._id ? (order as any)._id.toString() : (order as any).id,
+      userId: user.id,
+      userEmail: user.email,
+      userName: user.name,
+      productId,
+      productName: product.name,
+      quantity,
+      totalAmount,
+      status: order.status,
+      createdAt: (order as any).createdAt,
     });
 
     return order;

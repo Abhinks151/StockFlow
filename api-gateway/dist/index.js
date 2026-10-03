@@ -28,13 +28,27 @@ app.use("/api/users", (0, http_proxy_middleware_1.createProxyMiddleware)({
     },
 }));
 app.use("/api/products", (0, http_proxy_middleware_1.createProxyMiddleware)({
-    target: "http://inventory-service:3002/api/products",
+    target: "http://inventory-service:3000/api/products",
     changeOrigin: true,
     on: {
         proxyReq: (proxyReq, req) => {
             (0, http_proxy_middleware_1.fixRequestBody)(proxyReq, req);
         }
     }
+}));
+app.use("/api/orders", (0, http_proxy_middleware_1.createProxyMiddleware)({
+    target: "http://order-service:3000/api/orders",
+    changeOrigin: true,
+    on: {
+        proxyReq: (proxyReq, req) => {
+            (0, http_proxy_middleware_1.fixRequestBody)(proxyReq, req);
+            const authReq = req;
+            if (authReq.user) {
+                proxyReq.setHeader("X-User-Id", authReq.user.userId);
+                proxyReq.setHeader("X-User-Email", authReq.user.email);
+            }
+        },
+    },
 }));
 app.get("/health", (_req, res) => {
     res.status(200).send("Ok");
