@@ -46,11 +46,30 @@ services:
     container_name: stockflow-inventory-service
     ports:
       - "3002:3000"
+      - "50051:50051"
     environment:
       - PORT=3000
+      - GRPC_PORT=50051
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/stockflow_inventory?schema=public
     depends_on:
       - postgres
+    networks:
+      - stockflow-network
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: stockflow-order-service
+    ports:
+      - "3003:3000"
+    environment:
+      - PORT=3000
+      - MONGO_URI=mongodb://mongo:27017/stockflow_orders
+      - INVENTORY_GRPC_HOST=inventory-service:50051
+    depends_on:
+      - mongo
+      - inventory-service
     networks:
       - stockflow-network
 
@@ -67,6 +86,7 @@ services:
     depends_on:
       - user-service
       - inventory-service
+      - order-service
     networks:
       - stockflow-network
 
