@@ -50,7 +50,26 @@ app.use(
       }
     }
   })
-)
+);
+
+app.use(
+  "/api/orders",
+  createProxyMiddleware({
+    target: "http://order-service:3000/api/orders",
+    changeOrigin: true,
+    on: {
+      proxyReq: (proxyReq, req) => {
+        fixRequestBody(proxyReq, req);
+
+        const authReq = req as AuthRequest;
+        if (authReq.user) {
+          proxyReq.setHeader("X-User-Id", authReq.user.userId);
+          proxyReq.setHeader("X-User-Email", authReq.user.email);
+        }
+      },
+    },
+  })
+);
 
 app.get("/health", (_req, res) => {
   res.status(200).send("Ok");
